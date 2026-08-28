@@ -1,0 +1,82 @@
+--- public/builder.yml (原始)
+
+
++++ public/builder.yml (修改后)
+# ============================================================
+#  FACTURATION PRO DZ — PIPELINE DE BUILD AUTOMATIQUE
+#  Emplacement : .github/workflows/builder.yml
+# ------------------------------------------------------------
+#  Déclenchement :
+#    - à chaque push sur main / master
+#    - à chaque tag v* (release ZIP automatique)
+#    - manuellement depuis l'onglet Actions
+# ============================================================
+
+name: Auto Builder — Facturation Pro DZ
+
+on:
+  push:
+    branches: [main, master]
+    tags: ["v*"]
+  pull_request:
+    branches: [main]
+  workflow_dispatch: {}
+
+env:
+  NODE_VERSION: "20"
+  BUILD_DIR: dist
+  APP_NAME: facturation-pro-dz
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: Installer & Builder
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Configuration de Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Installation des dépendances
+        run: npm ci
+
+      - name: Vérification TypeScript
+        run: npx tsc --noEmit
+
+      - name: Build de production (Vite)
+        run: npm run build
+
+      - name: Archivage des livrables
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-dist
+          path: ${{ env.BUILD_DIR }}
+          retention-days: 14
+
+  release:
+    name: Publication automatique
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération des livrables
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ env.APP_NAME }}-dist
+          path: ${{ env.BUILD_DIR }}
+
+      - name: Compression en ZIP
+        run: zip -r ${{ env.APP_NAME }}-${{ github.ref_name }}.zip ${{ env.BUILD_DIR }}
+
+      - name: Création de la release GitHub
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.APP_NAME }}-${{ github.ref_name }}.zip
+          generate_release_notes: true
