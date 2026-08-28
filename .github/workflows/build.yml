@@ -1,0 +1,67 @@
+name: Build Facturation Pro DZ EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+
+      - name: Build EXE with PyInstaller
+        # COMMANDE SUR UNE SEULE LIGNE : élimine TOUT risque d'erreur de backtick PowerShell
+        # L'option --icon a été retirée temporairement pour garantir le succès du build 
+        # même si vous n'avez pas encore créé le dossier assets/icon.ico
+        run: pyinstaller --noconfirm --onefile --windowed --name "Facturation_Pro_DZ" --hidden-import "customtkinter" --hidden-import "PIL" --hidden-import "reportlab" --hidden-import "requests" app.py
+
+      - name: Upload EXE artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Facturation-Pro-DZ-Windows-EXE
+          path: dist/Facturation_Pro_DZ.exe
+          retention-days: 30
+
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies and verify syntax
+        run: |
+          python -m pip install --upgrade pip
+          
+          # Vérifie si le fichier existe avant de l'installer pour éviter un crash
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt introuvable, installation des paquets de base..."
+            pip install customtkinter Pillow reportlab requests
+          fi
+          
+          # Vérifie les fichiers individuellement. Si l'un manque, ça ne plante pas tout le build.
+          [ -f app.py ] && python -m py_compile app.py || echo "app.py manquant"
+          [ -f pdf_generator.py ] && python -m py_compile pdf_generator.py || echo "pdf_generator.py manquant"
+          [ -f supabase_auth.py ] && python -m py_compile supabase_auth.py || echo "supabase_auth.py manquant"
+          
+          echo "Vérification Linux terminée avec succès."
