@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>FACTURATION PRO DZ — Activation</title>
+<link rel="stylesheet" href="css/activation.css">
+</head>
+<body>
+<div class="activation-container">
+  <div class="brand">
+    <h1>FACTURATION PRO DZ</h1>
+    <p class="tagline">Solution de facturation professionnelle</p>
+  </div>
+
+  <div class="activation-box" id="activationBox">
+    <div class="icon-lock">🔒</div>
+    <h2>ACTIVATION</h2>
+    <p class="info">Pour utiliser le logiciel, veuillez entrer votre code d'accès acheté.</p>
+
+    <label for="accessCode">Code d'accès</label>
+    <input type="text" id="accessCode" placeholder="FPDZ-XXXX-XXXX-XXXX" maxlength="20" autocomplete="off">
+
+    <button id="btnActivate" class="btn-primary">ACTIVER MON CODE</button>
+
+    <div class="separator"></div>
+    <p class="no-code">Vous n'avez pas encore de code ?</p>
+    <button id="btnContact" class="btn-secondary">ACHETER / CONTACTER</button>
+  </div>
+
+  <div class="status-message" id="statusMessage"></div>
+
+  <footer class="footer-activation">
+    © 2026 FACTURATION PRO DZ — Tous droits réservés
+  </footer>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+  document.getElementById('btnActivate').addEventListener('click', () => {
+    const code = document.getElementById('accessCode').value.trim();
+    Auth.activate(code);
+  });
+  document.getElementById('btnContact').addEventListener('click', () => {
+    alert('Contactez-nous : contact@facturationprodz.dz\nTél : +213 XX XX XX XX');
+  });
+</script>
+</body>
+</html>

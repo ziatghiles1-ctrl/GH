@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Mon abonnement</title>
+<link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">📄 FPDZ</div>
+  <nav>
+    <a href="dashboard.html">🏠 Tableau de bord</a>
+    <a href="facture.html">🧾 Factures</a>
+    <a href="proforma.html">📋 Pro-forma</a>
+    <a href="abonnement.html" class="active">🔑 Mon abonnement</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <header class="topbar"><h2>🔑 Mon abonnement</h2></header>
+
+  <section class="subscription-card">
+    <h3>MON ABONNEMENT</h3>
+    <div class="sub-info" id="subInfo"></div>
+    <button onclick="document.getElementById('renewBox').style.display='block'" class="btn-primary">🔑 ENTRER UN NOUVEAU CODE</button>
+    <button onclick="alert('Contact: contact@facturationprodz.dz')" class="btn-secondary">📞 Contacter le fournisseur</button>
+  </section>
+
+  <section id="renewBox" class="renew-box" style="display:none">
+    <h3>Renouveler / Changer de code</h3>
+    <input id="newCode" placeholder="FPDZ-XXXX-XXXX-XXXX">
+    <button onclick="renew()">ACTIVER</button>
+  </section>
+</main>
+
+<script src="js/auth.js"></script>
+<script>
+  if (!Auth.requireAuth()) throw new Error();
+  const s = Auth.getSession();
+  const days = Math.max(0, Math.floor((new Date(s.expiresAt) - new Date()) / 86400000));
+  document.getElementById('subInfo').innerHTML = `
+    <p><b>Statut :</b> <span style="color:green">✓ ACTIF</span></p>
+    <p><b>Formule :</b> ${s.plan}</p>
+    <p><b>Activation :</b> ${s.activatedAt}</p>
+    <p><b>Expiration :</b> ${s.expiresAt}</p>
+    <p><b>Jours restants :</b> ${days}</p>
+    <p><b>Code :</b> ${s.code}</p>
+  `;
+  function renew() {
+    const c = document.getElementById('newCode').value;
+    Auth.activate(c);
+  }
+</script>
+</body>
+</html>

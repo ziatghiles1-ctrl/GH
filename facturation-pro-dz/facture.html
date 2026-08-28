@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Nouvelle Facture</title>
+<link rel="stylesheet" href="css/dashboard.css">
+<link rel="stylesheet" href="css/invoice-print.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+  <div class="logo">📄 FPDZ</div>
+  <nav>
+    <a href="dashboard.html">🏠 Tableau de bord</a>
+    <a href="facture.html" class="active">🧾 Factures</a>
+    <a href="proforma.html">📋 Pro-forma</a>
+    <a href="abonnement.html">🔑 Mon abonnement</a>
+  </nav>
+</aside>
+
+<main class="content">
+  <header class="topbar">
+    <h2>Nouvelle Facture</h2>
+    <div>
+      <button onclick="Facture.render()">🔄 Aperçu</button>
+      <button onclick="Facture.printPDF()" class="btn-primary">📥 Télécharger PDF</button>
+    </div>
+  </header>
+
+  <!-- Formulaire de saisie -->
+  <section class="form-section no-print">
+    <h3>Informations générales</h3>
+    <div class="form-grid">
+      <div><label>N° Facture</label><input id="f_numero" value="01"></div>
+      <div><label>Date</label><input type="date" id="f_date" value="2026-08-28"></div>
+      <div><label>N° ODS</label><input id="f_ods" value="514/DRA/2025 DU 09/07/2025"></div>
+      <div><label>N° Franchise</label><input id="f_franchise" value="2889582 du 23/04/2026"></div>
+      <div><label>N° Marché</label><input id="f_marche" value="54/2025 DU 08/07/2025"></div>
+      <div><label>N° Bon de commande</label><input id="f_bon" value="2500652 DU 09/07/2025"></div>
+      <div style="grid-column: span 2;"><label>Objet</label><input id="f_objet" value="Travaux d'installation de raccordement de lignes abonnés PSTN au niveau de CMP AIN EL HAMMAM"></div>
+    </div>
+
+    <h3>Lignes de prestation</h3>
+    <table id="itemsTable" class="items-edit">
+      <thead>
+        <tr><th>N°</th><th>Désignation</th><th>Désignation APPI</th><th>Qté</th><th>Unité</th><th>Prix U</th><th>Montant HT</th><th></th></tr>
+      </thead>
+      <tbody id="itemsBody"></tbody>
+    </table>
+    <button onclick="Facture.addLine()" class="btn-secondary">+ Ajouter une ligne</button>
+  </section>
+
+  <!-- APERÇU (design original) -->
+  <section id="invoicePreview" class="invoice-page"></section>
+</main>
+
+<script src="js/auth.js"></script>
+<script src="js/app.js"></script>
+<script src="js/facture.js"></script>
+<script src="js/pdf-generator.js"></script>
+<script>
+  if (!Auth.requireAuth()) throw new Error();
+  Facture.init();
+</script>
+</body>
+</html>
